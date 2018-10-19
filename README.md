@@ -6,7 +6,7 @@ First of all you need to activate i2c on Raspberry pi.
 here how to do: https://diyprojects.io/activate-i2c-bus-raspberry-pi-3-zero/
 
 # Hardware used
-I built an I2C module with a port expander, I made a mistake wen i ordered it, I used a PCF8574AP instead of a PCF8574A, basically the difference lies in the fact that in the first 0 it is on and 1 is off, while in the second it is the inverse.
+Raspberry pi zero w, and I built an I2C module with a port expander, I made a mistake wen i ordered it, I used a PCF8574AP instead of a PCF8574A, basically the difference lies in the fact that in the first 0 it is on and 1 is off, while in the second it is the inverse.
 https://www.nxp.com/docs/en/data-sheet/PCF8574_PCF8574A.pdf
 
 # Software
