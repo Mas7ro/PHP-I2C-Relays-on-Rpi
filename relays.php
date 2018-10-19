@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-	<title>Documento senza titolo</title>
+	<title>PHP I2C Relays Control Panel</title>
 </head>
 <body>
 	<?php
 	function zerificabinario( $rel ) 
-	{ //function to add a 0 to the beginning of the binary
+	{ //function to add one or more 0 to the beginning of the binary
 		$caratteriBin = strlen( $rel );
 		$diff = 8 - $caratteriBin;
 		if ( $diff > 0 ) {
@@ -21,25 +21,26 @@
 	function caricastatorelays() 
 	{ //function to load relays status
 		global $arrRelays;
-		$statorele = shell_exec( '/usr/sbin/i2cget -y 1 0x23' );
-		$relays = zerificabinario( base_convert( $statorele, 16, 2 ) );
-		$arrRelays = str_split( $relays );
+		$statorele = shell_exec( '/usr/sbin/i2cget -y 1 0x23' ); //read the status
+		$relays = zerificabinario( base_convert( $statorele, 16, 2 ) ); //convert into a binary and add necessary zeroes
+		$arrRelays = str_split( $relays ); //Split binary in an Array
 		return ( $arrRelays );
 	}
 	echo( "<br>" );
-	caricastatorelays();
+	caricastatorelays(); //first of all load status of the relays
 	if ( isset( $_POST[ "ID" ] ) ) 
-	{
-		$toggle = $_POST[ "ID" ];
-		$toggle = ( substr( $toggle, -1, 1 ) ) - 1;
-		$changedValue = ( 0 == $arrRelays[ $toggle ] ) ? '1' : '0';
-		$arrRelaysToggle = array_replace( [], $arrRelays, [ $toggle => $changedValue ] );
-		$newrelaystatus = implode( $arrRelaysToggle );
-		$newrelaystatus = base_convert( $newrelaystatus, 2, 16 );
-		shell_exec( 'i2cset -y 1 0x23 0x' . $newrelaystatus ); 
+	{// if a button has been clicked
+		$toggle = $_POST[ "ID" ]; //wich relays?
+		$toggle = ( substr( $toggle, -1, 1 ) ) - 1; 
+		$changedValue = ( 0 == $arrRelays[ $toggle ] ) ? '1' : '0'; //find new value of realay
+		$arrRelays = array_replace( [], $arrRelays, [ $toggle => $changedValue ] ); //invert state of the relay
+		$newrelaystatus = base_convert(implode( $arrRelays ), 2, 16 ); //convert binary to hex
 		// !!!!! change 0x23 with I2C addres of your relays board
-		caricastatorelays();
+		shell_exec( 'i2cset -y 1 0x23 0x' . $newrelaystatus );  //command to relays !!!!! change 0x23 with I2C addres of your relays board
+		// !!!!! change 0x23 with I2C addres of your relays board
+		caricastatorelays(); // reload status of relays
 		header( 'Location: ' . $_SERVER[ 'PHP_SELF' ] ); // make a redirect to empty post data. in case of reload of the page i don't wont to re-toggle last action
+		//for debugging you have to comment header()
 	}
 	?>
 	<br>
